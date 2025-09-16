@@ -1,4 +1,5 @@
 from datetime import date, timedelta
+from typing import Generator
 
 
 def loading_urls(base_url, provider):
@@ -6,7 +7,7 @@ def loading_urls(base_url, provider):
         yield f"{base_url}/{item}"
 
 
-def get_days_interval(start: date, end: date, delta_days=1) -> list[list[date]]:
+def get_days_interval(start: date, end: date, delta_days=1) -> Generator[tuple[date], None, None]:
     """Split updating period into chunks"""
     delta = timedelta(days=delta_days)
     next_day_delta = timedelta(days=1)

@@ -14,9 +14,8 @@ class GetAPICall(APICall):
             async for attempt in self.retry_policy:
                 with attempt:
                     resp = await client.get(self.url)
+                    return resp.raise_for_status().json()
         except RetryError:
-          pass
+            pass
+
         
-        print(resp.status_code)
-        print(resp.json())
-        return resp.json()

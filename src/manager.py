@@ -12,25 +12,27 @@ from store import ListStore
 # tests
 # getting filesa
 
-
 class UploadedData:
-    def __init__(self, store: Store, urls: Urls, api_call_factory: APICall, auth: httpx.Auth | None = None):
+    def __init__(self, store: Store, api_call_factory: APICall, urls: Urls):
         self.store = store
-        self.urls = urls
         self.api_call_factory = api_call_factory
-        self.auth = auth 
+        self.urls = urls
 
-    async def handle_chunk(self, client: httpx.AsyncClient):
+    async def save_chunk(self, client):
         for url in self.urls:
             data = await self.api_call_factory(url).content(client)
             self.store.add(data)
 
+
+class ConcurrentRequests:
+    def __init__(self, uploaded_data: UploadedData, number_of_workers: int = 10, auth: httpx.Auth | None = None):
+        self.number_of_workers = number_of_workers
+        self.uploaded_data = uploaded_data
+        self.auth = auth
+    
     async def run(self):
         async with httpx.AsyncClient(auth=self.auth) as client:
-            pending = [
-                asyncio.create_task(self.handle_chunk(client)),
-                asyncio.create_task(self.handle_chunk(client)),
-            ]
+            pending = [asyncio.create_task(self.uploaded_data.save_chunk(client)) for _ in range(self.number_of_workers)]
 
             while pending:
                 done, pending = await asyncio.wait(pending, return_when=asyncio.FIRST_COMPLETED)
@@ -40,9 +42,12 @@ class UploadedData:
                     print(await done_task)
 
 
+store = ListStore()
+data = UploadedData(store, 
+                    GetAPICall,
+                    loading_urls('https://jsonplaceholder.typicode.com/comments', get_next_comment(1,40)), 
+                    )
+reqs = ConcurrentRequests(data)
 
-data = UploadedData(ListStore(), 
-                    loading_urls('https://jsonplaceholder.typicode.com/comments', get_next_comment(10,15)), 
-                    api_call_factory=GetAPICall)
-asyncio.run(data.run())
-+print(data.store.saved_data())
+asyncio.run(reqs.run())
+print(store.saved_data())
