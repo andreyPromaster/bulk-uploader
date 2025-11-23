@@ -1,0 +1,28 @@
+from httpx import AsyncClient
+import httpx
+import pytest
+
+from bulk_uploader.apicall import GetAPICall
+from bulk_uploader.manager import UploadedData
+from bulk_uploader.store import ListStore
+from tests.fake_clients import RetryTransport
+
+
+@pytest.mark.asyncio
+async def test_save_data_ok():
+    expected_data = {"fake_data": "value"}
+    store = ListStore()
+    fake_responses = [
+        httpx.Response(200, json=expected_data),
+        httpx.Response(200, json=expected_data),
+    ]
+    urls = ["https://test.com/1", "https://test.com/2"]
+    async with AsyncClient(
+        transport=RetryTransport(handler=lambda item: "", responses=fake_responses)
+    ) as client:
+        uploaded_data = UploadedData(
+            store=store, api_call_factory=GetAPICall, urls=urls
+        )
+        await uploaded_data.save_chunks(client=client)
+
+    assert uploaded_data.store.saved_data() == [expected_data, expected_data]
