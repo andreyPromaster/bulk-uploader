@@ -1,5 +1,3 @@
-import asyncio
-import random
 import httpx
 from tenacity import AsyncRetrying, RetryError, stop_after_attempt
 
@@ -26,7 +24,6 @@ class GetAPICall(APICall):
             async for attempt in self.retry_policy:
                 with attempt:
                     resp = await self.client.get(self.url)
-                    await asyncio.sleep(random.random() * 2)
                     resp.raise_for_status()
                     return resp.json()
         except RetryError as e:

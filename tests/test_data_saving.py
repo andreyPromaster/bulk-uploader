@@ -17,12 +17,14 @@ async def test_save_data_ok():
         httpx.Response(200, json=expected_data),
     ]
     urls = ["https://test.com/1", "https://test.com/2"]
-    async with AsyncClient(
+    uploaded_data = UploadedData(
+        store=store,
+        api_call_factory=GetAPICall,
+        url_maker=urls,
+        base_url="https://test.com",
+    )
+    await uploaded_data.run(
         transport=RetryTransport(handler=lambda item: "", responses=fake_responses)
-    ) as client:
-        uploaded_data = UploadedData(
-            store=store, api_call_factory=GetAPICall, urls=urls
-        )
-        await uploaded_data.save_chunks(client=client)
+    )
 
     assert uploaded_data.store.saved_data() == [expected_data, expected_data]
