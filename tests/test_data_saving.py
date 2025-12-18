@@ -1,6 +1,6 @@
-from httpx import AsyncClient
 import httpx
 import pytest
+from httpx import AsyncClient
 
 from bulk_uploader.apicall import GetAPICall
 from bulk_uploader.manager import UploadedData
@@ -21,10 +21,10 @@ async def test_save_data_ok():
         store=store,
         api_call_factory=GetAPICall,
         url_maker=urls,
-        base_url="https://test.com",
     )
     await uploaded_data.run(
-        transport=RetryTransport(handler=lambda item: "", responses=fake_responses)
+        base_url="https://test.com",
+        transport=RetryTransport(handler=lambda item: "", responses=fake_responses),
     )
 
     assert uploaded_data.store.saved_data() == [expected_data, expected_data]

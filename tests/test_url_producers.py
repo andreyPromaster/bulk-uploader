@@ -1,9 +1,9 @@
 import httpx
 import pytest
+from fake_clients import RetryTransport
 from httpx import AsyncClient
 
 from bulk_uploader.apicall import GetAPICall
-from fake_clients import RetryTransport
 
 
 @pytest.mark.asyncio
