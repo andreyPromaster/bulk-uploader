@@ -1,6 +1,5 @@
 import httpx
 import pytest
-from httpx import AsyncClient
 
 from bulk_uploader.apicall import GetAPICall
 from bulk_uploader.manager import UploadedData
