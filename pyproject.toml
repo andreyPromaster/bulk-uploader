@@ -4,12 +4,22 @@ version = "0.1.0"
 description = ""
 authors = ["Yakshuk Andrey"]
 readme = "README.md"
+packages = [
+]
 
 [tool.poetry.dependencies]
 python = "^3.10"
 httpx = "^0.27.0"
 tenacity = "^9.0.0"
 
+[tool.poetry.group.test.dependencies]
+pytest = "^8.4.2"
+pytest-asyncio = "^1.2.0"
+
+[tool.pytest.ini_options]
+markers = [
+    "asyncio",
+]
 
 [build-system]
 requires = ["poetry-core"]
