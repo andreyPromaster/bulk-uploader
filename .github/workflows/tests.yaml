@@ -25,6 +25,4 @@ jobs:
         run: poetry install --no-interaction
 
       - name: Run tests
-        run: |
-          poetry run pytest tests/
-          coverage report
+        run: poetry run pytest --cov ./bulk_uploader/
